@@ -33,3 +33,7 @@ configure_file(
 )
 
 executable('midirun-config', src, dependencies: deps, install: true)
+
+install_data('data/udev/99-midirun-config.rules', install_dir: '/etc/udev/rules.d')
+
+meson.add_install_script('post_install.sh')
