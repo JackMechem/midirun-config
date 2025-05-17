@@ -19,6 +19,11 @@ src = [
   'src/devicedropdown.cpp',
   'src/getkeycode.cpp',
   'include/getkeycode.hpp',
+  'include/statusbar.hpp',
+  'src/statusbar.cpp',
+  'include/mappingentry.hpp',
+  'include/configentry.hpp',
+  'src/mappingentry.cpp',
 ]
 
 configure_file(

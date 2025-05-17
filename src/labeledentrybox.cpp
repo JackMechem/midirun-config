@@ -30,6 +30,14 @@ LabeledEntryBox::LabeledEntryBox(const Glib::ustring &label_text,
 					if (m_EntryFocused == false) {
 						break;
 					}
+					if (key == -1) { // In case permisions are not set correctly
+						m_Entry.set_editable(true);
+						Glib::signal_idle().connect([this]() -> bool {
+							m_Entry.set_editable(true);
+							return false;
+						});
+						return;
+					}
 					entryText << key;
 					entryText << ",";
 					Glib::signal_idle().connect(

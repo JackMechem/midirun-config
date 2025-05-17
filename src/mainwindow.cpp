@@ -3,7 +3,6 @@
 #include "../include/labeledentrybox.hpp"
 #include "../include/midilisten.hpp"
 #include "RtMidi.h"
-#include "gtkmm/enums.h"
 #include "gtkmm/object.h"
 #include "sigc++/functors/mem_fun.h"
 #include <cstdint>
@@ -19,10 +18,10 @@
 MainWindow::MainWindow() {
 	set_title("Midirun Config");
 
-	m_status_label.set_text("Welcome to midirun config");
-	set_child(m_Box);
+	m_status_bar.set_status_text("Welcome to midirun config");
+	set_child(m_box);
 	m_listen_button.signal_clicked().connect(
-		sigc::mem_fun(*this, &MainWindow::on_button_toggled));
+		sigc::mem_fun(*this, &MainWindow::on_listen_button_toggled));
 
 	m_listen_button.set_label("Listen");
 	m_listen_button.set_hexpand(false);
@@ -49,100 +48,60 @@ MainWindow::MainWindow() {
 	if (configValues.size() > 0) {
 		for (ConfigEntry ent : configValues) {
 
-			auto *group_box =
-				Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 6);
-			auto *nameEntry =
-				Gtk::make_managed<LabeledEntryBox>("Name", "name");
-			auto *b0Entry = Gtk::make_managed<LabeledEntryBox>("Byte 0", "b0");
-			auto *b1Entry = Gtk::make_managed<LabeledEntryBox>("Byte 1", "b1");
-			auto *keyEntry = Gtk::make_managed<LabeledEntryBox>("Keys", "keys");
-			auto *remove_button = Gtk::make_managed<Gtk::Button>("✕");
+			MappingEntry *m_map_ent = Gtk::make_managed<MappingEntry>(ent);
 
-			nameEntry->set_entry_text(ent.name);
-			b0Entry->set_entry_text(ent.b0);
-			b1Entry->set_entry_text(ent.b1);
-
-			std::stringstream keysStr;
-
-			for (int i = 0; i < ent.keys.size(); i++) {
-				int key = ent.keys[i];
-				keysStr << key;
-				if (i + 1 != ent.keys.size())
-					keysStr << ",";
-			}
-			keyEntry->set_entry_text(keysStr.str());
-
-			// Connect the "Remove" button
-			remove_button->signal_clicked().connect([this, group_box]() {
-				m_map_group_list_box.remove(
-					*group_box); // remove the whole group row
-			});
-
-			remove_button->set_vexpand(false);
-			remove_button->set_valign(Gtk::Align::CENTER);
-			remove_button->add_css_class("round-button");
-			remove_button->add_css_class("destructive-action");
-			group_box->append(*remove_button);
-			remove_button->set_margin_end(20);
-			group_box->append(*nameEntry);
-			group_box->append(*b0Entry);
-			group_box->append(*b1Entry);
-			group_box->append(*keyEntry);
-			group_box->set_margin(10);
-
-			m_map_group_list_box.append(*group_box);
+			m_map_group_list_box.append(*m_map_ent);
 			m_map_group_list_box.set_spacing(10);
 			m_map_group_list_box.set_margin_start(20);
 			m_map_group_list_box.set_margin_end(20);
 			m_map_group_list_box.set_margin_top(20);
 			m_map_group_list_box.set_margin_bottom(20);
 			m_map_group_list_box.set_focusable(true);
-			group_box->show();
 		}
 	}
 
-	// Port Dropdown
-	// m_PortELabel.set_markup("<b>Device:</b>");
-	// m_PortELabel.set_halign(Gtk::Align::START);
-	// m_PortELabel.set_margin_bottom(5);
-	// m_PortEBox.append(m_PortELabel);
-	// m_PortEBox.append(m_PortDrop);
-	// m_PortEBox.set_margin_end(10);
-	// m_PortEBox.set_hexpand(true);
+	//// Status Bar
+	// m_box_status.set_hexpand(true);
+	// m_box_status.set_vexpand(false);
+	// m_status_label.set_margin(4);
+	// m_status_label.set_halign(Gtk::Align::START);
+	// m_box_status.append(m_status_label);
+	// m_status_sep.set_hexpand(true);
+	// m_box_status.append(m_status_sep);
 
-	// Top Box
-	m_BoxTop.append(m_PortDrop);
-	m_BoxTop.append(m_listen_button);
-	m_BoxTop.set_hexpand(true);
-	m_BoxTop.set_margin(10);
-	m_BoxTop.set_spacing(10);
-	m_BoxTop.set_focusable(true);
+	//// Listen Section
+	m_box_listen_content.append(m_listen_port_drop);
+	m_box_listen_content.append(m_listen_button);
+	m_box_listen_content.set_hexpand(true);
+	m_box_listen_content.set_margin(10);
+	m_box_listen_content.set_spacing(10);
+	m_box_listen_content.set_focusable(true);
 
-	// Text View
-	m_text_buffer = Gtk::TextBuffer::create();
-	m_text_view.set_buffer(m_text_buffer);
-	m_text_view.set_editable(false); // optional
-	m_text_view.set_wrap_mode(Gtk::WrapMode::WORD);
-	m_text_view.set_margin(10);
-	m_text_view.set_vexpand(true); // Allow vertical expansion
-	m_text_view.set_can_focus(false);
+	// Listen Text View
+	m_listen_text_buffer = Gtk::TextBuffer::create();
+	m_listen_text_view.set_buffer(m_listen_text_buffer);
+	m_listen_text_view.set_editable(false); // optional
+	m_listen_text_view.set_wrap_mode(Gtk::WrapMode::WORD);
+	m_listen_text_view.set_margin(10);
+	m_listen_text_view.set_vexpand(true); // Allow vertical expansion
+	m_listen_text_view.set_can_focus(false);
 
-	m_text_view.set_margin(10);
-	m_text_view.set_vexpand(true);
+	m_listen_text_view.set_margin(10);
+	m_listen_text_view.set_vexpand(true);
 
-	m_text_sw.set_child(m_text_view);
-	m_text_sw.set_policy(Gtk::PolicyType::AUTOMATIC,
-						 Gtk::PolicyType::AUTOMATIC);
+	m_listen_text_sw.set_child(m_listen_text_view);
+	m_listen_text_sw.set_policy(Gtk::PolicyType::AUTOMATIC,
+								Gtk::PolicyType::AUTOMATIC);
 
-	m_text_frame.set_label("");
+	m_listen_text_frame.set_label("");
 	auto bold_label = Gtk::make_managed<Gtk::Label>();
 	bold_label->set_markup("<b>Output</b>");
-	m_text_frame.set_label_widget(*bold_label);
-	m_text_frame.set_child(m_text_sw);
-	m_text_frame.set_margin(10);
-	m_text_frame.set_vexpand(true);
+	m_listen_text_frame.set_label_widget(*bold_label);
+	m_listen_text_frame.set_child(m_listen_text_sw);
+	m_listen_text_frame.set_margin(10);
+	m_listen_text_frame.set_vexpand(true);
 
-	// Map Section
+	//// Map Section
 	m_map_button.set_label("Add New Map");
 	m_apply_button.set_label("Apply");
 
@@ -160,54 +119,45 @@ MainWindow::MainWindow() {
 	m_map_button_box.set_can_focus(true);
 	m_map_button_box.set_spacing(10);
 
-	m_BoxMap.set_spacing(10);
-	m_BoxMap.set_margin(10);
-	m_BoxMap.set_focusable(true);
-	m_BoxMap.set_valign(Gtk::Align::START);
-	m_BoxMap.append(m_map_group_list_box);
-	m_BoxMap.append(m_SepMap);
-	m_BoxMap.append(m_PortDropMap);
-	m_BoxMap.append(m_map_button_box);
+	m_box_map.set_spacing(10);
+	m_box_map.set_margin(10);
+	m_box_map.set_focusable(true);
+	m_box_map.set_valign(Gtk::Align::START);
+	m_box_map.append(m_map_group_list_box);
+	m_box_map.append(m_map_sep);
+	m_box_map.append(m_map_port_drop);
+	m_box_map.append(m_map_button_box);
 
-	// Status Bar
-	m_box_status.set_hexpand(true);
-	m_box_status.set_vexpand(false);
-	m_status_label.set_margin(4);
-	m_status_label.set_halign(Gtk::Align::START);
-	m_box_status.append(m_status_label);
-	m_status_sep.set_hexpand(true);
-	m_box_status.append(m_status_sep);
+	//// Main Box
+	m_listen_sep.set_hexpand(true);
+	m_box_listen.append(m_box_listen_content);
+	m_box_listen.append(m_listen_text_frame);
+	m_box_map.set_vexpand(true);
+	m_box_listen.set_vexpand(false);
 
-	// Main Box
-	m_Sep1.set_hexpand(true);
-	m_BoxListen.append(m_BoxTop);
-	m_BoxListen.append(m_text_frame);
-	m_BoxMap.set_vexpand(true);
-	m_BoxListen.set_vexpand(false);
+	m_map_scrolled_window.set_policy(Gtk::PolicyType::AUTOMATIC,
+									 Gtk::PolicyType::AUTOMATIC);
+	m_map_scrolled_window.set_child(m_box_map);
 
-	m_MapScrolledWindow.set_policy(Gtk::PolicyType::AUTOMATIC,
-								   Gtk::PolicyType::AUTOMATIC);
-	m_MapScrolledWindow.set_child(m_BoxMap);
-
-	m_Box.append(m_box_status);
-	m_Box.append(m_MapScrolledWindow);
-	m_Box.append(m_Sep1);
-	m_Box.append(m_BoxListen);
-	m_Box.set_focusable(true);
+	m_box.append(m_status_bar);
+	m_box.append(m_map_scrolled_window);
+	m_box.append(m_listen_sep);
+	m_box.append(m_box_listen);
+	m_box.set_focusable(true);
 	auto click_controller = Gtk::GestureClick::create();
 	click_controller->signal_pressed().connect(
-		[this](int, double, double) { m_Box.grab_focus(); });
-	m_Box.add_controller(click_controller);
+		[this](int, double, double) { m_box.grab_focus(); });
+	m_box.add_controller(click_controller);
 
 	if (listening == false) {
-		m_text_frame.hide();
+		m_listen_text_frame.hide();
 	}
 }
 
 MainWindow::~MainWindow() {}
 
 void MainWindow::on_apply_clicked() {
-	m_status_label.set_text("Parsing Data...");
+	m_status_bar.set_status_text("Parsing Data...");
 	configValues.clear();
 	configValues.shrink_to_fit();
 	if (m_map_group_list_box.get_first_child()) {
@@ -248,18 +198,17 @@ void MainWindow::on_apply_clicked() {
 			}
 			std::cout << std::endl;
 		}
-		m_status_label.set_text("Creating config file...");
+		m_status_bar.set_status_text("Creating config file...");
 		create_config_file(configValues, configPath);
-		m_status_label.set_text(
+		m_status_bar.set_status_text(
 			"Config file written, please restart the midirun service.");
 	} else {
 		std::cout << "no maps\n";
-		m_status_label.set_text("ERROR: You don't have any mappings set!");
+		m_status_bar.set_status_text("ERROR: You don't have any mappings set!");
 	}
 }
 
-std::vector<MainWindow::ConfigEntry>
-MainWindow::read_config_file(const std::string &path) {
+std::vector<ConfigEntry> MainWindow::read_config_file(const std::string &path) {
 	std::vector<ConfigEntry> entries;
 
 	try {
@@ -267,7 +216,7 @@ MainWindow::read_config_file(const std::string &path) {
 
 		int port = tbl["config"]["inputPort"].value_or<int>(-1);
 
-		m_PortDropMap.set_active(port - 1);
+		m_map_port_drop.set_active(port - 1);
 
 		if (auto mappingArray = tbl["mapping"].as_array()) {
 			for (const auto &item : *mappingArray) {
@@ -296,12 +245,13 @@ MainWindow::read_config_file(const std::string &path) {
 			}
 		} else {
 			std::cerr << "`mapping` is not an array of tables.\n";
-			m_status_label.set_text("Could not import current config, pressing "
-									"apply will create a new one.");
+			m_status_bar.set_status_text(
+				"Could not import current config, pressing "
+				"apply will create a new one.");
 		}
 	} catch (const toml::parse_error &err) {
 		std::cerr << "TOML parse error: " << err.description() << "\n";
-		m_status_label.set_text(
+		m_status_bar.set_status_text(
 			"Error parsing config (config most likely doesn't exist), pressing "
 			"apply will create a new one.");
 	}
@@ -314,8 +264,8 @@ void MainWindow::create_config_file(
 	toml::table config;
 
 	config.insert_or_assign(
-		"config",
-		toml::table{{"inputPort", m_PortDropMap.get_active_row_number() + 1}});
+		"config", toml::table{{"inputPort",
+							   m_map_port_drop.get_active_row_number() + 1}});
 
 	for (const auto &entry : configValues) {
 		toml::table mapping;
@@ -342,84 +292,62 @@ void MainWindow::create_config_file(
 }
 
 void MainWindow::on_add_map_clicked() {
-	auto *group_box =
-		Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 6);
-	auto *nameEntry = Gtk::make_managed<LabeledEntryBox>("Name", "name");
-	auto *b0Entry = Gtk::make_managed<LabeledEntryBox>("Byte 0", "b0");
-	auto *b1Entry = Gtk::make_managed<LabeledEntryBox>("Byte 1", "b1");
-	auto *keyEntry = Gtk::make_managed<LabeledEntryBox>("Keys", "keys");
-	auto *remove_button = Gtk::make_managed<Gtk::Button>("✕");
 
-	// Connect the "Remove" button
-	remove_button->signal_clicked().connect([this, group_box]() {
-		m_map_group_list_box.remove(*group_box); // remove the whole group row
-	});
+	MappingEntry *m_map_ent = Gtk::make_managed<MappingEntry>();
 
-	remove_button->set_vexpand(false);
-	remove_button->set_valign(Gtk::Align::CENTER);
-	remove_button->add_css_class("round-button");
-	remove_button->add_css_class("destructive-action");
-	group_box->append(*remove_button);
-	remove_button->set_margin_end(20);
-	group_box->append(*nameEntry);
-	group_box->append(*b0Entry);
-	group_box->append(*b1Entry);
-	group_box->append(*keyEntry);
-	group_box->set_margin(10);
-
-	m_map_group_list_box.append(*group_box);
+	m_map_group_list_box.append(*m_map_ent);
 	m_map_group_list_box.set_spacing(10);
 	m_map_group_list_box.set_margin_start(20);
 	m_map_group_list_box.set_margin_end(20);
 	m_map_group_list_box.set_margin_top(20);
 	m_map_group_list_box.set_margin_bottom(20);
-	group_box->show();
+	m_map_group_list_box.set_focusable(true);
 }
 
-void MainWindow::on_button_toggled() {
+void MainWindow::on_listen_button_toggled() {
 	listening = !listening;
 
-	if (m_MapScrolledWindow.get_parent())
-		m_MapScrolledWindow.unparent();
-	if (m_BoxListen.get_parent())
-		m_BoxListen.unparent();
-	if (m_Sep1.get_parent())
-		m_Sep1.unparent();
-	if (paned.get_parent())
-		paned.unparent();
+	if (m_map_scrolled_window.get_parent())
+		m_map_scrolled_window.unparent();
+	if (m_box_listen.get_parent())
+		m_box_listen.unparent();
+	if (m_listen_sep.get_parent())
+		m_listen_sep.unparent();
+	if (m_listen_map_paned.get_parent())
+		m_listen_map_paned.unparent();
 
-	paned.set_start_child(m_DummyBox1);
-	paned.set_end_child(m_DummyBox2);
+	m_listen_map_paned.set_start_child(m_dummy_box1);
+	m_listen_map_paned.set_end_child(m_dummy_box2);
 
 	if (listening) {
 
 		m_listen_button.set_label("Stop Listening");
 
-		paned.set_start_child(m_MapScrolledWindow);
-		paned.set_end_child(m_BoxListen);
+		m_listen_map_paned.set_start_child(m_map_scrolled_window);
+		m_listen_map_paned.set_end_child(m_box_listen);
 
-		m_text_frame.show();
-		m_Box.append(paned);
+		m_listen_text_frame.show();
+		m_box.append(m_listen_map_paned);
 
 		std::thread listenT(&MainWindow::midiListen, this);
 		listenT.detach();
 
 	} else {
 		m_listen_button.set_label("Listen");
-		m_text_buffer->set_text("");
-		m_text_frame.hide();
+		m_listen_text_buffer->set_text("");
+		m_listen_text_frame.hide();
 
-		m_Box.append(m_MapScrolledWindow);
-		m_Box.append(m_Sep1);
-		m_Box.append(m_BoxListen);
+		m_box.append(m_map_scrolled_window);
+		m_box.append(m_listen_sep);
+		m_box.append(m_box_listen);
 	}
 }
 
 void MainWindow::midiListen() {
 
-	int port = m_PortDrop.get_active_row_number();
+	int port = m_listen_port_drop.get_active_row_number();
 	if (port == -1) {
-		m_text_buffer->set_text("Please Select a Device!");
+		m_listen_text_buffer->set_text("Please Select a Device!");
 	} else {
 
 		RtMidiIn *midiin = new RtMidiIn();
@@ -459,12 +387,13 @@ void MainWindow::midiListen() {
 			if (out != "") {
 
 				{
-					std::lock_guard<std::mutex> lock(textMutex);
-					pendingText = out;
+					std::lock_guard<std::mutex> lock(midiListenTextMutex);
+					midiListenPendingText = out;
 				}
 				Glib::signal_idle().connect_once([this]() {
-					std::lock_guard<std::mutex> lock(textMutex);
-					m_text_buffer->insert(m_text_buffer->begin(), pendingText);
+					std::lock_guard<std::mutex> lock(midiListenTextMutex);
+					m_listen_text_buffer->insert(m_listen_text_buffer->begin(),
+												 midiListenPendingText);
 				});
 				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				out = "";

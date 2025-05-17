@@ -1,5 +1,4 @@
 #include "include/mainwindow.hpp"
-#include <cstring>
 #include <gtkmm/application.h>
 int main(int argc, char **argv) {
 
