@@ -1,0 +1,8 @@
+.round-button {
+	min-width: 34px;
+	min-height: 34px;
+	padding: 0;
+	border-radius: 90px;
+	transition-duration: 300ms;
+	font-size: 18px;
+}

@@ -3,8 +3,6 @@
 #include "../include/labeledentrybox.hpp"
 #include "../include/midilisten.hpp"
 #include "RtMidi.h"
-#include "gtkmm/object.h"
-#include "sigc++/functors/mem_fun.h"
 #include <cstdint>
 #include <fstream>
 #include <iostream>
@@ -14,6 +12,41 @@
 #include <thread>
 #include <toml++/toml.h>
 #include <vector>
+
+bool file_exists(const std::string &path) {
+	return Gio::File::create_for_path(path)->query_exists();
+}
+
+std::optional<std::string> find_css_file() {
+	std::string dev_path = "data/style.css";
+	if (Gio::File::create_for_path(dev_path)->query_exists())
+		return dev_path;
+
+	auto user_path = Glib::build_filename(Glib::get_user_data_dir(),
+										  "midirun-config/style.css");
+	if (Gio::File::create_for_path(user_path)->query_exists())
+		return user_path;
+
+	for (const auto &dir : Glib::get_system_data_dirs()) {
+		auto sys_path = Glib::build_filename(dir, "midirun-config/style.css");
+		if (Gio::File::create_for_path(sys_path)->query_exists())
+			return sys_path;
+	}
+
+	return std::nullopt;
+}
+
+void load_css() {
+	auto css_provider = Gtk::CssProvider::create();
+	if (auto path = find_css_file(); path.has_value()) {
+		css_provider->load_from_path(path.value());
+		Gtk::StyleContext::add_provider_for_display(
+			Gdk::Display::get_default(), css_provider,
+			GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+	} else {
+		std::cerr << "Could not find style.css\n";
+	}
+}
 
 MainWindow::MainWindow() {
 	set_title("Midirun Config");
@@ -27,21 +60,7 @@ MainWindow::MainWindow() {
 	m_listen_button.set_hexpand(false);
 	m_listen_button.set_vexpand(false);
 
-	auto css = Gtk::CssProvider::create();
-
-	css->load_from_data(R"(
-    .round-button {
-        min-width: 34px;
-        min-height: 34px;
-        padding: 0;
-        border-radius: 90px;
-        transition-duration: 300ms;
-        font-size: 18px;
-    }
-    )");
-
-	Gtk::StyleContext::add_provider_for_display(
-		Gdk::Display::get_default(), css, GTK_STYLE_PROVIDER_PRIORITY_USER);
+	load_css();
 
 	configValues = read_config_file(configPath);
 
@@ -59,15 +78,6 @@ MainWindow::MainWindow() {
 			m_map_group_list_box.set_focusable(true);
 		}
 	}
-
-	//// Status Bar
-	// m_box_status.set_hexpand(true);
-	// m_box_status.set_vexpand(false);
-	// m_status_label.set_margin(4);
-	// m_status_label.set_halign(Gtk::Align::START);
-	// m_box_status.append(m_status_label);
-	// m_status_sep.set_hexpand(true);
-	// m_box_status.append(m_status_sep);
 
 	//// Listen Section
 	m_box_listen_content.append(m_listen_port_drop);
@@ -370,8 +380,7 @@ void MainWindow::midiListen() {
 		midiin->ignoreTypes(false, false, false);
 
 		// Periodically check input queue.
-		std::cout << "Reading MIDI from port " << port
-				  << " -- quit with Ctrl-C.\n";
+		std::cout << "Reading MIDI from port " << port << std::endl;
 		while (listening) {
 			stamp = midiin->getMessage(&message);
 			nBytes = message.size();
