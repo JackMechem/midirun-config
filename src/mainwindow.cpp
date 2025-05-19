@@ -166,6 +166,25 @@ MainWindow::MainWindow() {
 
 MainWindow::~MainWindow() {}
 
+void restartMidirun() {
+	std::ifstream pid_file("/tmp/midirun.pid");
+	if (!pid_file) {
+		std::cerr << "Failed to open PID file.\n";
+	}
+
+	int pid;
+	pid_file >> pid;
+	if (pid <= 0) {
+		std::cerr << "Invalid PID.\n";
+	}
+
+	if (kill(pid, SIGHUP) == 0) {
+		std::cout << "Sent SIGHUP to daemon (PID " << pid << ").\n";
+	} else {
+		perror("kill");
+	}
+}
+
 void MainWindow::on_apply_clicked() {
 	m_status_bar.set_status_text("Parsing Data...");
 	configValues.clear();
@@ -211,7 +230,9 @@ void MainWindow::on_apply_clicked() {
 		m_status_bar.set_status_text("Creating config file...");
 		create_config_file(configValues, configPath);
 		m_status_bar.set_status_text(
-			"Config file written, please restart the midirun service.");
+			"Config file written, restarting midirun...");
+		restartMidirun();
+
 	} else {
 		std::cout << "no maps\n";
 		m_status_bar.set_status_text("ERROR: You don't have any mappings set!");
