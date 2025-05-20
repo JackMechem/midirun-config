@@ -52,6 +52,7 @@ class MainWindow : public Gtk::Window {
 	Gtk::Box m_map_button_box{Gtk::Orientation::HORIZONTAL};
 	Gtk::Button m_map_button;
 	Gtk::Button m_apply_button;
+	Gtk::Box m_map_group_list_main_box{Gtk::Orientation::VERTICAL};
 	Gtk::Box m_map_group_list_box{Gtk::Orientation::VERTICAL};
 	Gtk::Box m_map_label_box{Gtk::Orientation::HORIZONTAL};
 	Gtk::Label m_map_name_label{"Name"};

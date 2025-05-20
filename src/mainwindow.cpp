@@ -79,15 +79,12 @@ MainWindow::MainWindow() {
 	m_map_label_box.append(m_map_b0_label);
 	m_map_label_box.append(m_map_b1_label);
 	m_map_label_box.append(m_map_key_label);
+	m_map_group_list_main_box.append(m_map_label_box);
+	m_map_group_list_main_box.append(m_map_group_list_box);
 	if (configValues.size() > 0) {
 		for (ConfigEntry ent : configValues) {
-			MappingEntry *m_map_ent;
-			if (!m_map_group_list_box.get_first_accessible_child()) {
-				m_map_group_list_box.append(m_map_label_box);
-				m_map_ent = Gtk::make_managed<MappingEntry>(ent, true);
-			} else {
-				m_map_ent = Gtk::make_managed<MappingEntry>(ent, false);
-			}
+			MappingEntry *m_map_ent =
+				Gtk::make_managed<MappingEntry>(ent, true);
 
 			m_map_group_list_box.append(*m_map_ent);
 		}
@@ -150,7 +147,7 @@ MainWindow::MainWindow() {
 	m_box_map.set_margin(10);
 	m_box_map.set_focusable(true);
 	m_box_map.set_valign(Gtk::Align::START);
-	m_box_map.append(m_map_group_list_box);
+	m_box_map.append(m_map_group_list_main_box);
 	m_box_map.append(m_map_sep);
 	m_box_map.append(m_map_port_drop);
 	m_box_map.append(m_map_button_box);
@@ -296,12 +293,14 @@ std::vector<ConfigEntry> MainWindow::read_config_file(const std::string &path) {
 			m_status_bar.set_status_text(
 				"Could not import current config, pressing "
 				"apply will create a new one.");
+			entries.clear();
 		}
 	} catch (const toml::parse_error &err) {
 		std::cerr << "TOML parse error: " << err.description() << "\n";
 		m_status_bar.set_status_text(
 			"Error parsing config (config most likely doesn't exist), pressing "
 			"apply will create a new one.");
+		entries.clear();
 	}
 
 	return entries;
@@ -341,13 +340,7 @@ void MainWindow::create_config_file(
 
 void MainWindow::on_add_map_clicked() {
 
-	MappingEntry *m_map_ent;
-	if (!m_map_group_list_box.get_first_accessible_child()) {
-		m_map_ent = Gtk::make_managed<MappingEntry>(true);
-		m_map_group_list_box.append(m_map_label_box);
-	} else {
-		m_map_ent = Gtk::make_managed<MappingEntry>(false);
-	}
+	MappingEntry *m_map_ent = Gtk::make_managed<MappingEntry>(true);
 	m_map_group_list_box.append(*m_map_ent);
 }
 
