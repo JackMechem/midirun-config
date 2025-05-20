@@ -3,6 +3,8 @@
 #include "../include/devicedropdown.hpp"
 #include "../include/mappingentry.hpp"
 #include "../include/statusbar.hpp"
+#include "gtkmm/enums.h"
+#include "gtkmm/label.h"
 #include <atomic>
 #include <gtkmm.h>
 #include <mutex>
@@ -51,6 +53,11 @@ class MainWindow : public Gtk::Window {
 	Gtk::Button m_map_button;
 	Gtk::Button m_apply_button;
 	Gtk::Box m_map_group_list_box{Gtk::Orientation::VERTICAL};
+	Gtk::Box m_map_label_box{Gtk::Orientation::HORIZONTAL};
+	Gtk::Label m_map_name_label{"Name"};
+	Gtk::Label m_map_b0_label{"Byte 0"};
+	Gtk::Label m_map_b1_label{"Byte 1"};
+	Gtk::Label m_map_key_label{"Key Codes"};
 	Gtk::Separator m_map_sep{Gtk::Orientation::HORIZONTAL};
 	DeviceDropdown m_map_port_drop{"Device"};
 

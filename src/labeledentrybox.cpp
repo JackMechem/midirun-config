@@ -4,7 +4,7 @@
 #include <thread>
 
 LabeledEntryBox::LabeledEntryBox(const Glib::ustring &label_text,
-								 const std::string _id)
+								 const std::string _id, bool labeled)
 	: Gtk::Box(Gtk::Orientation::VERTICAL) {
 	id = _id;
 	m_Label.set_text(label_text);
@@ -59,14 +59,14 @@ LabeledEntryBox::LabeledEntryBox(const Glib::ustring &label_text,
 
 		m_Entry.add_controller(focus_controller);
 	}
-
-	append(m_Label);
 	append(m_Entry);
 }
 
 void LabeledEntryBox::set_label(const Glib::ustring &new_text) {
 	m_Label.set_text(new_text);
 }
+
+void LabeledEntryBox::remove_label() {}
 
 void LabeledEntryBox::set_entry_text(const Glib::ustring &text) {
 	m_Entry.set_text(text);

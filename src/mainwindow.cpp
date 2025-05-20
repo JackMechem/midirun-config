@@ -3,6 +3,7 @@
 #include "../include/labeledentrybox.hpp"
 #include "../include/midilisten.hpp"
 #include "RtMidi.h"
+#include "gtkmm/enums.h"
 #include <cstdint>
 #include <fstream>
 #include <iostream>
@@ -64,20 +65,36 @@ MainWindow::MainWindow() {
 
 	configValues = read_config_file(configPath);
 
+	m_map_name_label.set_hexpand(true);
+	m_map_name_label.set_halign(Gtk::Align::START);
+	m_map_b0_label.set_hexpand(true);
+	m_map_b0_label.set_halign(Gtk::Align::START);
+	m_map_b1_label.set_hexpand(true);
+	m_map_b1_label.set_halign(Gtk::Align::START);
+	m_map_key_label.set_hexpand(true);
+	m_map_key_label.set_halign(Gtk::Align::START);
+	m_map_label_box.set_spacing(38);
+	m_map_label_box.set_margin_start(38);
+	m_map_label_box.append(m_map_name_label);
+	m_map_label_box.append(m_map_b0_label);
+	m_map_label_box.append(m_map_b1_label);
+	m_map_label_box.append(m_map_key_label);
 	if (configValues.size() > 0) {
 		for (ConfigEntry ent : configValues) {
-
-			MappingEntry *m_map_ent = Gtk::make_managed<MappingEntry>(ent);
+			MappingEntry *m_map_ent;
+			if (!m_map_group_list_box.get_first_accessible_child()) {
+				m_map_group_list_box.append(m_map_label_box);
+				m_map_ent = Gtk::make_managed<MappingEntry>(ent, true);
+			} else {
+				m_map_ent = Gtk::make_managed<MappingEntry>(ent, false);
+			}
 
 			m_map_group_list_box.append(*m_map_ent);
-			m_map_group_list_box.set_spacing(10);
-			m_map_group_list_box.set_margin_start(20);
-			m_map_group_list_box.set_margin_end(20);
-			m_map_group_list_box.set_margin_top(20);
-			m_map_group_list_box.set_margin_bottom(20);
-			m_map_group_list_box.set_focusable(true);
 		}
 	}
+
+	m_map_group_list_box.set_spacing(10);
+	m_map_group_list_box.set_focusable(true);
 
 	//// Listen Section
 	m_box_listen_content.append(m_listen_port_drop);
@@ -324,15 +341,14 @@ void MainWindow::create_config_file(
 
 void MainWindow::on_add_map_clicked() {
 
-	MappingEntry *m_map_ent = Gtk::make_managed<MappingEntry>();
-
+	MappingEntry *m_map_ent;
+	if (!m_map_group_list_box.get_first_accessible_child()) {
+		m_map_ent = Gtk::make_managed<MappingEntry>(true);
+		m_map_group_list_box.append(m_map_label_box);
+	} else {
+		m_map_ent = Gtk::make_managed<MappingEntry>(false);
+	}
 	m_map_group_list_box.append(*m_map_ent);
-	m_map_group_list_box.set_spacing(10);
-	m_map_group_list_box.set_margin_start(20);
-	m_map_group_list_box.set_margin_end(20);
-	m_map_group_list_box.set_margin_top(20);
-	m_map_group_list_box.set_margin_bottom(20);
-	m_map_group_list_box.set_focusable(true);
 }
 
 void MainWindow::on_listen_button_toggled() {

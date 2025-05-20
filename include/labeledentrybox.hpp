@@ -5,10 +5,12 @@
 
 class LabeledEntryBox : public Gtk::Box {
   public:
-	LabeledEntryBox(const Glib::ustring &label_text, const std::string _id);
+	LabeledEntryBox(const Glib::ustring &label_text, const std::string _id,
+					bool labeled = false);
 
 	void set_label(const Glib::ustring &new_text);
 	void set_entry_text(const Glib::ustring &text);
+	void remove_label();
 	Glib::ustring get_entry_text() const;
 
 	void set_id(std::string _id) { id = _id; }

@@ -1,6 +1,6 @@
 #include "../include/mappingentry.hpp"
 
-MappingEntry::MappingEntry(const ConfigEntry ent)
+MappingEntry::MappingEntry(const ConfigEntry ent, bool labeled)
 	: Gtk::Box{Gtk::Orientation::HORIZONTAL, 6} {
 
 	nameEntry->set_entry_text(ent.name);
@@ -22,18 +22,15 @@ MappingEntry::MappingEntry(const ConfigEntry ent)
 	remove_button->set_vexpand(false);
 	remove_button->set_valign(Gtk::Align::CENTER);
 	remove_button->add_css_class("round-button");
-	remove_button->add_css_class("destructive-action");
 	append(*remove_button);
-	remove_button->set_margin_end(20);
 	append(*nameEntry);
 	append(*b0Entry);
 	append(*b1Entry);
 	append(*keyEntry);
-	set_margin(10);
 	set_spacing(10);
 }
 
-MappingEntry::MappingEntry() {
+MappingEntry::MappingEntry(bool labeled) {
 
 	remove_button->signal_clicked().connect([this]() { this->unparent(); });
 	nameEntry->set_entry_text("");
@@ -44,13 +41,10 @@ MappingEntry::MappingEntry() {
 	remove_button->set_vexpand(false);
 	remove_button->set_valign(Gtk::Align::CENTER);
 	remove_button->add_css_class("round-button");
-	remove_button->add_css_class("destructive-action");
 	append(*remove_button);
-	remove_button->set_margin_end(20);
 	append(*nameEntry);
 	append(*b0Entry);
 	append(*b1Entry);
 	append(*keyEntry);
-	set_margin(10);
 	set_spacing(10);
 }

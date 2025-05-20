@@ -6,8 +6,8 @@
 #include <gtkmm.h>
 class MappingEntry : public Gtk::Box {
   public:
-	MappingEntry(ConfigEntry ent);
-	MappingEntry();
+	MappingEntry(ConfigEntry ent, bool labeled = false);
+	MappingEntry(bool labeled = false);
 
   private:
 	LabeledEntryBox *nameEntry =
