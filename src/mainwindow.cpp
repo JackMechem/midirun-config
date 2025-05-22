@@ -52,7 +52,7 @@ void load_css() {
 MainWindow::MainWindow() {
 	set_title("Midirun Config");
 
-	m_status_bar.set_status_text("Welcome to midirun config");
+	m_status_bar.set_status_text("Midirun Config v" + std::string(VERSION));
 	set_child(m_box);
 	m_listen_button.signal_clicked().connect(
 		sigc::mem_fun(*this, &MainWindow::on_listen_button_toggled));

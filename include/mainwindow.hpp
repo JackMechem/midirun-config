@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+#define VERSION "0.1.0-beta"
+
 class MainWindow : public Gtk::Window {
   public:
 	MainWindow();
