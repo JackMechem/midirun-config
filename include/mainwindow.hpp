@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-#define VERSION "0.1.0-beta"
+#define VERSION "0.1.1-beta"
 
 class MainWindow : public Gtk::Window {
   public:

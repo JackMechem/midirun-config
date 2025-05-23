@@ -1,6 +1,6 @@
 # Midirun Config
 
-**v0.1.0-beta**
+**v0.1.1-beta**
 _TOML configuration genorator for [Midirun](https://github.com/JackMechem/MidiRun)_
 
 ![demo](./media/demo.png)
