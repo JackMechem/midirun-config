@@ -1,6 +1,6 @@
 # Midirun Config
 
-**v0.1.1-beta**
+**v0.1.2-beta**
 _TOML configuration genorator for [Midirun](https://github.com/JackMechem/MidiRun)_
 
 ![demo](./media/demo.png)
@@ -21,7 +21,18 @@ _TOML configuration genorator for [Midirun](https://github.com/JackMechem/MidiRu
 - [libevdev](https://www.freedesktop.org/wiki/Software/libevdev/)
 - [libudev](https://www.freedesktop.org/software/systemd/man/latest/libudev.html) (will migrate to sd-device soon)
 
-### :electric_plug: Installation
+### :arrow_up: Installation
+
+##### Arch
+
+```
+yay -S midirun-config
+
+# Logout and login to apply user group
+usermod -aG input $USER
+```
+
+### :electric_plug: Manual Installation
 
 #### 1. Install Dependencies
 
